@@ -48,32 +48,18 @@ export default defineComponent({
       }),
     })
 
-    // const sampleData = {
-    //   type: 'FeatureCollection',
-    //   features: Array.from({ length: 100 }, (_, i) => {
-    //     const isActive = Math.random() > 0.5
-    //     return {
-    //       type: 'Feature',
-    //       properties: {
-    //         name: `Sensor ${i + 1}`,
-    //         status: isActive ? 'active' : 'inactive',
-    //       },
-    //       geometry: {
-    //         type: 'Point',
-    //         coordinates: [
-    //           (Math.random() * 360 - 180).toFixed(2), // longitude [-180, 180]
-    //           (Math.random() * 180 - 90).toFixed(2), // latitude [-90, 90]
-    //         ],
-    //       },
-    //     }
-    //   }),
-    // }
-
+    // Function to update the active sensor count
     const updateCount = () => {
-      const features = vectorSource.value.getFeatures()
-      activeCount.value = features.filter((f) => f.get('status') === 'active').length
+      const extent = map.value!.getView().calculateExtent()
+      const featuresInExtent = vectorSource.value.getFeatures().filter((f) => {
+        const status = f.get('status')
+        const geom = f.getGeometry()
+        return status === 'active' && geom && geom.intersectsExtent(extent)
+      })
+      activeCount.value = featuresInExtent.length
     }
 
+    // Function to apply the filter based on the selected status
     const applyFilter = () => {
       vectorSource.value.getFeatures().forEach((feature) => {
         const status = feature.get('status')
@@ -114,6 +100,10 @@ export default defineComponent({
           applyFilter()
           updateCount()
         }
+      })
+
+      map.value.on('moveend', () => {
+        updateCount()
       })
     })
 
