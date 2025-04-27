@@ -1,47 +1,29 @@
 <template>
-  <!-- <q-page class="row items-center justify-evenly">
-    <example-component
-      title="Example component"
-      active
-      :todos="todos"
-      :meta="meta"
-    ></example-component>
-  </q-page> -->
+  <div class="q-pa-md">
+    <!-- <q-toolbar>
+      <q-toolbar-title>Map App</q-toolbar-title>
 
-  <open-layers-map></open-layers-map>
+      <q-btn flat label="Open Count Menu" @click="countMenuOpen = true" />
+    </q-toolbar> -->
+
+    <!-- The actual map -->
+    <open-layers-map></open-layers-map>
+    <!-- Toolbar -->
+
+    <!-- Count Menu inside a Dialog -->
+    <q-dialog v-model="countMenuOpen">
+      <CountMenu @close="countMenuOpen = false" />
+    </q-dialog>
+  </div>
 </template>
 
 <script setup lang="ts">
-// import { ref } from 'vue'
+import { ref } from 'vue'
 // import type { Todo, Meta } from 'components/models'
 // import ExampleComponent from 'components/ExampleComponent.vue'
 // import { defineComponent } from 'vue'
+import CountMenu from 'src/components/CountMenu.vue'
 import OpenLayersMap from './OpenLayersMap.vue'
 
-// const todos = ref<Todo[]>([
-//   {
-//     id: 1,
-//     content: 'ct1',
-//   },
-//   {
-//     id: 2,
-//     content: 'ct2',
-//   },
-//   {
-//     id: 3,
-//     content: 'ct3',
-//   },
-//   {
-//     id: 4,
-//     content: 'ct4',
-//   },
-//   {
-//     id: 5,
-//     content: 'ct5',
-//   },
-// ])
-
-// const meta = ref<Meta>({
-//   totalCount: 1200,
-// })
+const countMenuOpen = ref(false)
 </script>

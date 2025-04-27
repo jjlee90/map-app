@@ -1,19 +1,3 @@
-<template>
-  <div id="map-container">
-    <div id="map" class="map"></div>
-    <SensorCount :count="activeCount" />
-
-    <!-- Filter Buttons -->
-    <div class="controls">
-      <button @click="filter = 'all'" :class="{ active: filter === 'all' }">All</button>
-      <button @click="filter = 'active'" :class="{ active: filter === 'active' }">Active</button>
-      <button @click="filter = 'inactive'" :class="{ active: filter === 'inactive' }">
-        Inactive
-      </button>
-    </div>
-  </div>
-</template>
-
 <script lang="ts">
 import { defineComponent, ref, onMounted, watch } from 'vue'
 import type Feature from 'ol/Feature'
@@ -48,14 +32,24 @@ export default defineComponent({
       }),
     })
 
-    // Function to update the active sensor count
     const updateCount = () => {
+      // Get the current map view's extent (bounding box)
       const extent = map.value!.getView().calculateExtent()
-      const featuresInExtent = vectorSource.value.getFeatures().filter((f) => {
-        const status = f.get('status')
-        const geom = f.getGeometry()
-        return status === 'active' && geom && geom.intersectsExtent(extent)
+
+      // Get all features in the vector source
+      const featuresInExtent = vectorSource.value.getFeatures().filter((feature) => {
+        const status = feature.get('status')
+        const geom = feature.getGeometry()
+
+        // Check if the feature's geometry intersects the extent of the map view
+        return (
+          geom &&
+          geom.intersectsExtent(extent) &&
+          (filter.value === 'all' || filter.value === status)
+        )
       })
+
+      // Update the active count
       activeCount.value = featuresInExtent.length
     }
 
@@ -119,6 +113,22 @@ export default defineComponent({
   },
 })
 </script>
+
+<template>
+  <div id="map-container">
+    <div id="map" class="map"></div>
+    <SensorCount :count="activeCount" />
+
+    <!-- Filter Buttons -->
+    <div class="controls">
+      <button @click="filter = 'all'" :class="{ active: filter === 'all' }">All</button>
+      <button @click="filter = 'active'" :class="{ active: filter === 'active' }">Active</button>
+      <button @click="filter = 'inactive'" :class="{ active: filter === 'inactive' }">
+        Inactive
+      </button>
+    </div>
+  </div>
+</template>
 
 <style scoped>
 #map-container {
